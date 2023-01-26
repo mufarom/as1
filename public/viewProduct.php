@@ -3,13 +3,7 @@ session_start();
 require '../loadTemplate.php';
 require '../database/database.php';
 
-if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] == false) {
-    header('Location: login.php');
-    exit;
-}
-
 $auctionId = isset($_GET['auction_id']) ? intval($_GET['auction_id']) : 0;
-$userId = $_SESSION['user_id'];
 
 //Query Database For Product
 $productStmt = $pdo->prepare("SELECT a.title, a.description, a.endDate, c.name, r.email, a.user_id, MAX(b.amount) AS bid_amount
@@ -23,18 +17,34 @@ $product = $productStmt->fetch();
 
 //Submit User Bid
 if (isset($_POST['submitBid'])) {
+    //User Must Be Logged In To View The Product
+    if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] == false) {
+        header('Location: login.php');
+        exit;
+    }
+    else{
+    $userId = $_SESSION['user_id'];
 
     $amount = $_POST['amount'];
     $bidStmt = $pdo->prepare("INSERT INTO bids (auction_id, user_id, amount) VALUES (:auctionId, :userId, :amount)");
     $bidStmt->execute(['auctionId' => $auctionId, 'userId' => $userId, 'amount' => $amount]);
+    }
 }
 
 //Submit User Review
 if (isset($_POST['submitReview'])) {
+    //User Must Be Logged In To View The Product
+    if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] == false) {
+        header('Location: login.php');
+        exit;
+    }
+    else{
     $userId = $_SESSION['user_id'];
+
     $review = $_POST['review'];
     $reviewStmt = $pdo->prepare("INSERT INTO reviews (auction_id, user_id, review) VALUES (:auctionId, :userId, :review)");
     $reviewStmt->execute(['auctionId' => $auctionId, 'userId' => $userId, 'review' => $review]);
+    }
 }
 
 //Get User Reviews

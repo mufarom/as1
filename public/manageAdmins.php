@@ -11,9 +11,9 @@ if (!isset($_SESSION['admin']) || $_SESSION['admin'] == false) {
         $checkCredentials = $pdo->prepare('SELECT * FROM admin WHERE email = ?');
         $checkCredentials->execute([$_POST['email']]);
         $checkedCredentials = $checkCredentials->fetch();
-        $_SESSION['admin'] = $_POST['email'];
 
         if (password_verify($_POST['password'], $checkedCredentials['password_hash'])) {
+            $_SESSION['admin'] = $_POST['email'];
 
             $categoryStmt = $pdo->prepare('SELECT * FROM category');
             $categoryStmt->execute();
@@ -21,7 +21,8 @@ if (!isset($_SESSION['admin']) || $_SESSION['admin'] == false) {
             $output = loadTemplate('../templates/adminMenu.html.php', ['categoryStmt' => $categoryStmt]);
             $title = 'Admin Menu';
             require '../templates/layout.html.php';
-        } else {
+        } 
+        else {
             $output = '<p>Sorry, You Seem Not To Be An Admin</p>';
             $title = 'Admin Login';
             require '../templates/layout.html.php';
